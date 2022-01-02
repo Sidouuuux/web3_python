@@ -38,9 +38,11 @@ abi = json.loads(
     compiled_sol["contracts"]["SimpleStorage.sol"]["SimpleStorage"]["metadata"]
 )["output"]["abi"]
 
-w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545"))
-chain_id = 1337
-account_address = "0x683fa4c62E45d8937BC2cc305784553859619172"
+w3 = Web3(
+    Web3.HTTPProvider("https://rinkeby.infura.io/v3/e2e0f08d3ad64d5f8e5c2105114f8901")
+)
+chain_id = 4
+account_address = "0x43B5E32f1616b81575dbC2AAD02695f3FB8d1447"
 account_key = os.getenv("ACCOUNT_KEY")
 SimpleStorage = w3.eth.contract(abi=abi, bytecode=bytecode)
 
@@ -58,10 +60,10 @@ transaction = SimpleStorage.constructor().buildTransaction(
 print("Signing transaction")
 signed_txn = w3.eth.account.sign_transaction(transaction, private_key=account_key)
 
-print("Sending transaction")
+print("Deploying contract")
 tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
+print("Deployed contract")
 simple_storage = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
 print(simple_storage.functions.retrieve().call())
 
