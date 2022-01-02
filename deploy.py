@@ -45,8 +45,8 @@ account_key = os.getenv("ACCOUNT_KEY")
 SimpleStorage = w3.eth.contract(abi=abi, bytecode=bytecode)
 
 nonce = w3.eth.getTransactionCount(account_address)
-print("nonce : " + str(nonce))
 
+print("Creating transaction")
 transaction = SimpleStorage.constructor().buildTransaction(
     {
         "chainId": chain_id,
@@ -55,10 +55,31 @@ transaction = SimpleStorage.constructor().buildTransaction(
         "nonce": nonce,
     }
 )
-
+print("Signing transaction")
 signed_txn = w3.eth.account.sign_transaction(transaction, private_key=account_key)
-print(signed_txn)
 
+print("Sending transaction")
 tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-print(tx_receipt)
+
+simple_storage = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+print(simple_storage.functions.retrieve().call())
+
+store_transaction = simple_storage.functions.store(15).buildTransaction(
+    {
+        "chainId": chain_id,
+        "gasPrice": w3.eth.gas_price,
+        "from": account_address,
+        "nonce": nonce + 1,
+    }
+)
+
+signed_store_txn = w3.eth.account.sign_transaction(
+    store_transaction, private_key=account_key
+)
+tx_store_hash = w3.eth.send_raw_transaction(signed_store_txn.rawTransaction)
+print("Updating stored Value")
+tx_receipt = w3.eth.wait_for_transaction_receipt(tx_store_hash)
+print("Transaction receipt : " + str(tx_receipt))
+
+print("Result : " + str(simple_storage.functions.retrieve().call()))
