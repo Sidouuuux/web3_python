@@ -14,7 +14,7 @@ def deploy_fund_me():
         mock_aggregator = MockV3Aggregator.deploy(
             27, 2000000000000000000000, {"from": account}
         )
-        price_feed = mock_aggregator.address
+        price_feed_address = mock_aggregator.address
         print(f"Mock deployed!")
 
     fund_me = FundMe.deploy(
