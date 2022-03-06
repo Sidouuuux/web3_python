@@ -1,35 +1,22 @@
-from brownie import accounts, FundMe, MockV3Aggregator, network, config
-from scripts.utils import get_account
+from brownie import FundMe, network, config, MockV3Aggregator
+from scripts.helpful_scripts import get_account, deploy_mocks, LOCAL_BLOCKCHAIN_ENVIRONMENTS
+from web3 import Web3
 
 
 def deploy_fund_me():
     account = get_account()
-    if network.show_active() != "developement":
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         price_feed_address = config["networks"][network.show_active()][
             "eth_usd_price_feed"
         ]
     else:
-        print(f"Currently in the network {network.show_active()}")
-        print(f"Deploying Mock")
-        mock_aggregator = MockV3Aggregator.deploy(
-            27, 2000000000000000000000, {"from": account}
-        )
-        price_feed_address = mock_aggregator.address
-        print(f"Mock deployed!")
-
-    fund_me = FundMe.deploy(
-        "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
-        {"from": account},
-        publish_source=True,
-    )
-    print(f"Contract address : {fund_me.address} with {account}")
-
-
-def get_account():
-    if network.show_active() == "developement":
-        return accounts[0]
-    else:
-        return accounts.add(config["wallets"]["from_key"])
+        deploy_mocks()
+        price_feed_address = MockV3Aggregator[-1].address
+    fund_me = FundMe.deploy(price_feed_address, {
+                            "from": account}, publish_source=config["networks"]
+                            [network.show_active()]["verify"])
+    print(f"Contract address : {fund_me.address}")
+    return fund_me
 
 
 def main():
