@@ -50,10 +50,11 @@ abi = json.loads(
 
 # r
 # Connecting to ganache
-w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545"))
-chain_id = 1337
-my_address = "0x85a57c76CCaA0c4a0F1a597620312bE76507f019"
-private_key = os.getenv("PRIVATE_KEY")
+w3 = Web3(Web3.HTTPProvider(
+    "https://ropsten.infura.io/v3/e2e0f08d3ad64d5f8e5c2105114f8901"))
+chain_id = 3
+my_address = "0xA73360652E68EDFf693DeDAE812Ab83F2B36a53E"
+private_key = "0x61e94f5051edd5ed6a74659f74e81a5ad807ee6be8504f80bcf9170f479ff544"
 
 # Create the contract
 SimpleStorage = w3.eth.contract(abi=abi, bytecode=bytecode)

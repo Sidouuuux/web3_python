@@ -1,23 +1,26 @@
-from brownie import accounts, SimpleStorage, network, config
+from brownie import accounts, config, SimpleStorage
+import os
 
 
 def deploy_simple_storage():
-    account = get_account()
+    # import account from brownie
+    account = accounts[0]
+    # deploy a contract (import it before)
     simple_storage = SimpleStorage.deploy({"from": account})
-    storage_value = simple_storage.retrieve()
-    print(storage_value)
-    transaction = simple_storage.store(18, {"from": account})
+    stored_value = simple_storage.retrieve()
+    print(stored_value)
+    transaction = simple_storage.store(15, {"from": account})
     transaction.wait(1)
-    storage_value = simple_storage.retrieve()
-    print(storage_value)
-
-
-def get_account():
-    if network.show_active() == "developement":
-        return accounts[0]
-    else:
-        return accounts.add(config["wallets"]["from_key"])
+    updated_value = simple_storage.retrieve()
+    print(updated_value)
+    # import account from .env
+    # account = accounts.add(os.getenv("PRIVATE_KEY"))
+    # import account from brownie-config.yaml
+    # account = accounts.add(config["wallets"]["from_key"])
+    # import account from brownie cli
+    # account = accounts.load("sidoux_ropsten")
 
 
 def main():
+    print("Deploying contract...")
     deploy_simple_storage()
